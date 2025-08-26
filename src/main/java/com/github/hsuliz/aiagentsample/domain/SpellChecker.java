@@ -27,7 +27,6 @@ public class SpellChecker {
                       CompletableFuture.supplyAsync(
                           () -> {
                             try {
-                              System.out.println(Thread.currentThread());
                               return chatClient.prompt(PROMPT + " Text: " + text).call().content();
                             } catch (Exception e) {
                               throw new RuntimeException("Failed to process:", e);
