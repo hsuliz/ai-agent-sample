@@ -37,11 +37,11 @@ public class Calendar {
      """;
 
   public void processUserMessage(UserMessage userMessage) {
-    var currentDate = "Current date:" + LocalDate.now();
-    var instructionWithCurrentDate = new SystemMessage(INSTRUCTION + currentDate);
+    String currentDate = "Current date:" + LocalDate.now();
+    SystemMessage instructionWithCurrentDate = new SystemMessage(INSTRUCTION + currentDate);
     Prompt prompt = new Prompt(instructionWithCurrentDate, userMessage);
-    var promptCall = chatClient.prompt(prompt).call();
-    var response = promptCall.entity(CalendarEventResponse.class);
+    ChatClient.CallResponseSpec promptCall = chatClient.prompt(prompt).call();
+    CalendarEventResponse response = promptCall.entity(CalendarEventResponse.class);
     if (response == null) {
       throw new RuntimeException("Response is null");
     }
@@ -50,6 +50,7 @@ public class Calendar {
       throw new RuntimeException("Can't parse");
     }
 
+    System.out.println(response.action());
     switch (response.action()) {
       case ADD -> System.out.println("Add");
       case DELETE -> System.out.println("Delete");
