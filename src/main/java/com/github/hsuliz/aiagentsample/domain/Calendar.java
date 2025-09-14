@@ -43,7 +43,7 @@ public class Calendar {
     ChatClient.CallResponseSpec promptCall = chatClient.prompt(prompt).call();
     CalendarEventResponse response = promptCall.entity(CalendarEventResponse.class);
     if (response == null) {
-      throw new RuntimeException("Response is null");
+      throw new RuntimeException("OrchestratorResponse is null");
     }
 
     if (!response.parsed()) {
