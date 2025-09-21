@@ -1,6 +1,6 @@
 package com.github.hsuliz.aiagentsample.handler;
 
-import com.github.hsuliz.aiagentsample.domain.SpellChecker;
+import com.github.hsuliz.aiagentsample.domain.spellchecker.SpellChecker;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.http.ResponseEntity;

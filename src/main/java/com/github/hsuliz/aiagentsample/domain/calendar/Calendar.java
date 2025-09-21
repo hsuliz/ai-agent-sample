@@ -1,6 +1,5 @@
-package com.github.hsuliz.aiagentsample.domain;
+package com.github.hsuliz.aiagentsample.domain.calendar;
 
-import com.github.hsuliz.aiagentsample.domain.dto.CalendarEventResponse;
 import java.time.LocalDate;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -19,22 +18,22 @@ public class Calendar {
 
   private static final String INSTRUCTION =
       """
-     You are a smart AI calendar planner.
+                  You are a smart AI calendar planner.
 
-     Based on the user's request, try to parse the information. \s
-     If you successfully parse the request, set "parsed" to true; otherwise, set it to false.
+                  Based on the user's request, try to parse the information. \s
+                  If you successfully parse the request, set "parsed" to true; otherwise, set it to false.
 
-     Respond ONLY in the following JSON format (no extra text):
-     IF PARSED IF FALSE, DO NOT RETURN ANY ADDITIONAL DATA
+                  Respond ONLY in the following JSON format (no extra text):
+                  IF PARSED IF FALSE, DO NOT RETURN ANY ADDITIONAL DATA
 
-     \\{
-       "parsed": true or false,
-       "action": "add", "delete", or "modify",
-       "title": "...",
-       "date": "DD-MM-YYYY",
-       "time": "HH:MM"
-     \\}
-     """;
+                  \\{
+                    "parsed": true or false,
+                    "action": "add", "delete", or "modify",
+                    "title": "...",
+                    "date": "DD-MM-YYYY",
+                    "time": "HH:MM"
+                  \\}
+           """;
 
   public void processUserMessage(UserMessage userMessage) {
     String currentDate = "Current date:" + LocalDate.now();

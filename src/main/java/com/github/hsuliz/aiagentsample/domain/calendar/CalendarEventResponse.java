@@ -1,7 +1,6 @@
-package com.github.hsuliz.aiagentsample.domain.dto;
+package com.github.hsuliz.aiagentsample.domain.calendar;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 

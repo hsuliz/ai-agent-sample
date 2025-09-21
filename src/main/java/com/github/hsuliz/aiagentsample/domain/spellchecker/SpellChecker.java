@@ -1,4 +1,4 @@
-package com.github.hsuliz.aiagentsample.domain;
+package com.github.hsuliz.aiagentsample.domain.spellchecker;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

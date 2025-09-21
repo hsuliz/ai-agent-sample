@@ -1,9 +1,9 @@
-package com.github.hsuliz.aiagentsample.domain.dto;
+package com.github.hsuliz.aiagentsample.domain.calendar;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum Action {
+enum Action {
   ADD,
   DELETE,
   MODIFY;
