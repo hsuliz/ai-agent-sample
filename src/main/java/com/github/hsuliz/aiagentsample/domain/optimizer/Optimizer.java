@@ -31,73 +31,75 @@ public class Optimizer {
             Use "PASS" only if all criteria are met with no improvements needed.
             """;
 
-  public record RefinedResponse(String solution, List<Generation> chainOfThought) {}
+  public record RefinedResponse(String solution, List<GenerationResponse> chainOfThought) {}
 
   public RefinedResponse processPrompt(String task, Integer steps) {
+    String context = "";
     List<String> memory = new ArrayList<>();
-    List<Generation> chainOfThought = new ArrayList<>();
+    List<GenerationResponse> chainOfThought = new ArrayList<>();
 
-    return contextLoop(task, "", memory, chainOfThought);
-  }
-
-  private RefinedResponse contextLoop(
-      String task, String context, List<String> memory, List<Generation> chainOfThought) {
-    final var generationResponse =
-        chatClient
-            .prompt()
-            .user(
-                it ->
+    for (int i = 0; i < steps; i++) {
+      String finalContext = context;
+      GenerationResponse generationResponse =
+          chatClient
+              .prompt()
+              .user(
+                  it -> {
                     it.text("{prompt}\n{context}\nTask: {task}")
                         .param("prompt", SYSTEM_PROMPT)
-                        .param("context", context)
-                        .param("task", task))
-            .call()
-            .entity(Generation.class);
+                        .param("context", finalContext)
+                        .param("task", task);
+                  })
+              .call()
+              .entity(GenerationResponse.class);
 
-    if (generationResponse == null) {
-      throw new RuntimeException("Generation is null");
+      if (generationResponse == null) {
+        throw new RuntimeException("GenerationResponse is null");
+      }
+
+      System.out.printf(
+          "\n=== GENERATOR OUTPUT ===\nTHOUGHTS: %s\n\nRESPONSE:\n %s\n%n",
+          generationResponse.thoughts(), generationResponse.response());
+
+      memory.add(generationResponse.response());
+      chainOfThought.add(generationResponse);
+
+      EvaluationResponse evaluationResponse =
+          chatClient
+              .prompt()
+              .user(
+                  u ->
+                      u.text("{prompt}\nOriginal task: {task}\nContent to evaluate: {content}")
+                          .param("prompt", EVALUATOR_PROMPT)
+                          .param("task", task)
+                          .param("content", generationResponse.response()))
+              .call()
+              .entity(EvaluationResponse.class);
+
+      if (evaluationResponse == null) {
+        throw new RuntimeException("Evaluation response is null");
+      }
+
+      System.out.printf(
+          "\n=== EVALUATOR OUTPUT ===\nEVALUATION: %s\n\nFEEDBACK: %s\n%n",
+          evaluationResponse.evaluation(), evaluationResponse.feedback());
+
+      if (evaluationResponse.evaluation().equals(EvaluationResponse.Evaluation.PASS)) {
+        return new RefinedResponse(generationResponse.response(), chainOfThought);
+      }
+
+      StringBuilder updatedContext = new StringBuilder();
+      updatedContext.append("Previous attempts:");
+      memory.forEach(
+          it -> {
+            updatedContext.append("\n- ");
+            updatedContext.append(it);
+          });
+
+      updatedContext.append("\nFeedback: ").append(evaluationResponse.feedback());
+      context = updatedContext.toString();
     }
 
-    System.out.printf(
-        "\n=== GENERATOR OUTPUT ===\nTHOUGHTS: %s\n\nRESPONSE:\n %s\n%n",
-        generationResponse.thoughts(), generationResponse.response());
-
-    memory.add(generationResponse.response());
-    chainOfThought.add(generationResponse);
-
-    final var evaluationResponse =
-        chatClient
-            .prompt()
-            .user(
-                u ->
-                    u.text("{prompt}\nOriginal task: {task}\nContent to evaluate: {content}")
-                        .param("prompt", EVALUATOR_PROMPT)
-                        .param("task", task)
-                        .param("content", generationResponse.response()))
-            .call()
-            .entity(EvaluationResponse.class);
-
-    if (evaluationResponse == null) {
-      throw new RuntimeException("Evaluation response is null");
-    }
-
-      System.out.printf("\n=== EVALUATOR OUTPUT ===\nEVALUATION: %s\n\nFEEDBACK: %s\n%n",
-              evaluationResponse.evaluation(), evaluationResponse.feedback());
-
-    if (evaluationResponse.evaluation().equals(EvaluationResponse.Evaluation.PASS)) {
-      return new RefinedResponse(generationResponse.response(), chainOfThought);
-    }
-
-    final var updatedContext = new StringBuilder();
-    updatedContext.append("Previous attempts:");
-    memory.forEach(
-        it -> {
-          updatedContext.append("\n- ");
-          updatedContext.append(it);
-        });
-
-    updatedContext.append("\nFeedback: ").append(evaluationResponse.feedback());
-
-    return contextLoop(task, updatedContext.toString(), memory, chainOfThought);
+    return null;
   }
 }

@@ -13,6 +13,6 @@ public class OptimizerTest {
 
     @Test
     void testOptimize() {
-        optimizer.processPrompt("Write proffesinal email for work application", 4);
+        optimizer.processPrompt("Calculate 2 + 2 and then ad 84", 4);
     }
 }
