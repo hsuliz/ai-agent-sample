@@ -1,6 +1,8 @@
 package com.github.hsuliz.aiagentsample.domain.calendar;
 
 import java.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Calendar {
 
+  private final Logger logger = LoggerFactory.getLogger(Calendar.class);
+
   private final ChatClient chatClient;
 
   public Calendar(ChatClient chatClient) {
@@ -17,7 +21,7 @@ public class Calendar {
   }
 
   private static final String INSTRUCTION =
-        """
+      """
             You are a smart AI calendar planner.
 
             Based on the user's request, try to parse the information. \s
@@ -35,25 +39,24 @@ public class Calendar {
                 \\}
            """;
 
-  public void processUserMessage(UserMessage userMessage) {
+  public CalendarEvent processUserMessage(UserMessage userMessage) {
     String currentDate = "Current date:" + LocalDate.now();
     SystemMessage instructionWithCurrentDate = new SystemMessage(INSTRUCTION + currentDate);
     Prompt prompt = new Prompt(instructionWithCurrentDate, userMessage);
     ChatClient.CallResponseSpec promptCall = chatClient.prompt(prompt).call();
     CalendarEventResponse response = promptCall.entity(CalendarEventResponse.class);
-    if (response == null) {
-      throw new RuntimeException("OrchestratorResponse is null");
-    }
 
-    if (!response.parsed()) {
-      throw new RuntimeException("Can't parse");
-    }
+    if (response == null) throw new RuntimeException("OrchestratorResponse is null");
+    if (!response.parsed()) throw new RuntimeException("Can't parse");
 
-    System.out.println(response.action());
+    logger.info(String.valueOf(response.action()));
+
     switch (response.action()) {
-      case ADD -> System.out.println("Add");
-      case DELETE -> System.out.println("Delete");
-      case MODIFY -> System.out.println("Modify");
+      case ADD, MODIFY, DELETE -> {
+        logger.info("Created response: {}", response);
+        return new CalendarEvent(response);
+      }
+      default -> throw new IllegalStateException("Unexpected value: " + response.action());
     }
   }
 }

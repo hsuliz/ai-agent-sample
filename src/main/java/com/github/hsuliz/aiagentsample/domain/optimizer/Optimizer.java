@@ -2,11 +2,15 @@ package com.github.hsuliz.aiagentsample.domain.optimizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Optimizer {
+
+  private final Logger logger = LoggerFactory.getLogger(Optimizer.class);
 
   private final ChatClient chatClient;
 
@@ -39,6 +43,7 @@ public class Optimizer {
     List<GenerationResponse> chainOfThought = new ArrayList<>();
 
     for (int i = 0; i < steps; i++) {
+      logger.info("iteration number: {}", i);
       String finalContext = context;
       GenerationResponse generationResponse =
           chatClient
@@ -57,9 +62,8 @@ public class Optimizer {
         throw new RuntimeException("GenerationResponse is null");
       }
 
-      System.out.printf(
-          "\n=== GENERATOR OUTPUT ===\nTHOUGHTS: %s\n\nRESPONSE:\n %s\n%n",
-          generationResponse.thoughts(), generationResponse.response());
+      logger.info("thoughts {}", generationResponse.thoughts());
+      logger.info("response {}", generationResponse.response());
 
       memory.add(generationResponse.response());
       chainOfThought.add(generationResponse);
@@ -80,9 +84,8 @@ public class Optimizer {
         throw new RuntimeException("Evaluation response is null");
       }
 
-      System.out.printf(
-          "\n=== EVALUATOR OUTPUT ===\nEVALUATION: %s\n\nFEEDBACK: %s\n%n",
-          evaluationResponse.evaluation(), evaluationResponse.feedback());
+      logger.info("evaluation {}", evaluationResponse.evaluation());
+      logger.info("feedback {}", evaluationResponse.feedback());
 
       if (evaluationResponse.evaluation().equals(EvaluationResponse.Evaluation.PASS)) {
         return new RefinedResponse(generationResponse.response(), chainOfThought);
