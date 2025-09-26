@@ -1,5 +1,6 @@
 package com.github.hsuliz.aiagentsample.domain.calendar;
 
+import com.github.hsuliz.aiagentsample.domain.AIAgent;
 import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Calendar {
+public class Calendar implements AIAgent<CalendarEvent> {
 
   private final Logger logger = LoggerFactory.getLogger(Calendar.class);
 
@@ -40,11 +41,13 @@ public class Calendar {
            """;
 
   public CalendarEvent processUserMessage(UserMessage userMessage) {
+    logger.info("Got user message: {}", userMessage);
+
     String currentDate = "Current date:" + LocalDate.now();
     SystemMessage instructionWithCurrentDate = new SystemMessage(INSTRUCTION + currentDate);
     Prompt prompt = new Prompt(instructionWithCurrentDate, userMessage);
-    ChatClient.CallResponseSpec promptCall = chatClient.prompt(prompt).call();
-    CalendarEventResponse response = promptCall.entity(CalendarEventResponse.class);
+    CalendarEventResponse response =
+        chatClient.prompt(prompt).call().entity(CalendarEventResponse.class);
 
     if (response == null) throw new RuntimeException("OrchestratorResponse is null");
     if (!response.parsed()) throw new RuntimeException("Can't parse");
