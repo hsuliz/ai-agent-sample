@@ -13,14 +13,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class Calendar implements AIAgent<CalendarEvent> {
 
-  private final Logger logger = LoggerFactory.getLogger(Calendar.class);
-
-  private final ChatClient chatClient;
-
-  public Calendar(ChatClient chatClient) {
-    this.chatClient = chatClient;
-  }
-
   private static final String INSTRUCTION =
       """
             You are a smart AI calendar planner.
@@ -39,6 +31,12 @@ public class Calendar implements AIAgent<CalendarEvent> {
                 "time": "HH:MM"
                 \\}
            """;
+  private final Logger logger = LoggerFactory.getLogger(Calendar.class);
+  private final ChatClient chatClient;
+
+  public Calendar(ChatClient chatClient) {
+    this.chatClient = chatClient;
+  }
 
   public CalendarEvent processUserMessage(UserMessage userMessage) {
     logger.info("Got user message: {}", userMessage);
@@ -46,8 +44,8 @@ public class Calendar implements AIAgent<CalendarEvent> {
     String currentDate = "Current date:" + LocalDate.now();
     SystemMessage instructionWithCurrentDate = new SystemMessage(INSTRUCTION + currentDate);
     Prompt prompt = new Prompt(instructionWithCurrentDate, userMessage);
-    CalendarEventResponse response =
-        chatClient.prompt(prompt).call().entity(CalendarEventResponse.class);
+    CalendarEventAIResponse response =
+        chatClient.prompt(prompt).call().entity(CalendarEventAIResponse.class);
 
     if (response == null) throw new RuntimeException("OrchestratorResponse is null");
     if (!response.parsed()) throw new RuntimeException("Can't parse");

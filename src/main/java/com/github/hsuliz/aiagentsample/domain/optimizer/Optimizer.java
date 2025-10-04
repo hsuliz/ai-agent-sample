@@ -1,22 +1,16 @@
 package com.github.hsuliz.aiagentsample.domain.optimizer;
 
+import com.github.hsuliz.aiagentsample.domain.AIAgent;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Optimizer {
-
-  private final Logger logger = LoggerFactory.getLogger(Optimizer.class);
-
-  private final ChatClient chatClient;
-
-  public Optimizer(ChatClient chatClient) {
-    this.chatClient = chatClient;
-  }
+public class Optimizer implements AIAgent<String> {
 
   private static final String SYSTEM_PROMPT =
       """
@@ -25,7 +19,6 @@ public class Optimizer {
             Respond with EXACTLY JSON format:
             {"thoughts":"...","response":"..."}
             """;
-
   private static final String EVALUATOR_PROMPT =
       """
             Evaluate task and apply best practises as you as you understood.
@@ -34,15 +27,19 @@ public class Optimizer {
             The evaluation field must be one of: "PASS", "NEEDS_IMPROVEMENT", "FAIL"
             Use "PASS" only if all criteria are met with no improvements needed.
             """;
+  private final Logger logger = LoggerFactory.getLogger(Optimizer.class);
+  private final ChatClient chatClient;
 
-  public record RefinedResponse(String solution, List<GenerationResponse> chainOfThought) {}
+  public Optimizer(ChatClient chatClient) {
+    this.chatClient = chatClient;
+  }
 
-  public RefinedResponse processPrompt(String task, Integer steps) {
+  public String processUserMessage(UserMessage userMessage) {
     String context = "";
     List<String> memory = new ArrayList<>();
-    List<GenerationResponse> chainOfThought = new ArrayList<>();
 
-    for (int i = 0; i < steps; i++) {
+    int iterationSteps = 5;
+    for (int i = 0; i < iterationSteps; i++) {
       logger.info("iteration number: {}", i);
       String finalContext = context;
       GenerationResponse generationResponse =
@@ -53,7 +50,7 @@ public class Optimizer {
                     it.text("{prompt}\n{context}\nTask: {task}")
                         .param("prompt", SYSTEM_PROMPT)
                         .param("context", finalContext)
-                        .param("task", task);
+                        .param("task", userMessage);
                   })
               .call()
               .entity(GenerationResponse.class);
@@ -66,7 +63,6 @@ public class Optimizer {
       logger.info("response {}", generationResponse.response());
 
       memory.add(generationResponse.response());
-      chainOfThought.add(generationResponse);
 
       EvaluationResponse evaluationResponse =
           chatClient
@@ -75,7 +71,7 @@ public class Optimizer {
                   u ->
                       u.text("{prompt}\nOriginal task: {task}\nContent to evaluate: {content}")
                           .param("prompt", EVALUATOR_PROMPT)
-                          .param("task", task)
+                          .param("task", userMessage)
                           .param("content", generationResponse.response()))
               .call()
               .entity(EvaluationResponse.class);
@@ -88,7 +84,7 @@ public class Optimizer {
       logger.info("feedback {}", evaluationResponse.feedback());
 
       if (evaluationResponse.evaluation().equals(EvaluationResponse.Evaluation.PASS)) {
-        return new RefinedResponse(generationResponse.response(), chainOfThought);
+        return generationResponse.response();
       }
 
       StringBuilder updatedContext = new StringBuilder();

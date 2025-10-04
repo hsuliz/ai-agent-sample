@@ -1,10 +1,9 @@
 package com.github.hsuliz.aiagentsample.domain.calendar;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import javax.validation.constraints.NotNull;
 
 public record CalendarEvent(
     Boolean parsed,
@@ -13,7 +12,7 @@ public record CalendarEvent(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy") LocalDate date,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm") LocalTime time) {
 
-  public CalendarEvent(@NotNull CalendarEventResponse response) {
+  public CalendarEvent(@NotNull CalendarEventAIResponse response) {
     this(response.parsed(), response.action(), response.title(), response.date(), response.time());
   }
 }

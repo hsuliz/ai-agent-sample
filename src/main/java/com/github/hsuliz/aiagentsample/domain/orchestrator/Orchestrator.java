@@ -1,17 +1,15 @@
 package com.github.hsuliz.aiagentsample.domain.orchestrator;
 
+import com.github.hsuliz.aiagentsample.domain.AIAgent;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Orchestrator {
-
-  private final ChatClient chatClient;
-
-  public Orchestrator(ChatClient chatClient) {
-    this.chatClient = chatClient;
-  }
+public class Orchestrator implements AIAgent<List<String>> {
 
   public static final String SYSTEM_PROMPT =
       """
@@ -28,7 +26,6 @@ public class Orchestrator {
                   ]
                   \\}
                   """;
-
   public static final String WORKER_PROMPT =
       """
                   Generate content based on:
@@ -36,13 +33,22 @@ public class Orchestrator {
                   Style: {task_type}
                   Guidelines: {task_description}
                   """;
+  private final Logger logger = LoggerFactory.getLogger(Orchestrator.class);
+  private final ChatClient chatClient;
 
-  public List<String> processPrompt(String userPrompt) {
+  public Orchestrator(ChatClient chatClient) {
+    this.chatClient = chatClient;
+  }
+
+  @Override
+  public List<String> processUserMessage(UserMessage userMessage) {
+    logger.info("Got user message: {}", userMessage);
+    String userMessageText = userMessage.getText();
     OrchestratorResponse orchestratorResponse =
         chatClient
             .prompt()
             .system(SYSTEM_PROMPT)
-            .user(userPrompt)
+            .user(userMessageText)
             .call()
             .entity(OrchestratorResponse.class);
 
@@ -57,7 +63,7 @@ public class Orchestrator {
                         .user(
                             u ->
                                 u.text(WORKER_PROMPT)
-                                    .param("original_task", userPrompt)
+                                    .param("original_task", userMessageText)
                                     .param("task_type", task.type())
                                     .param("task_description", task.description()))
                         .call()
