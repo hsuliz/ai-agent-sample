@@ -14,26 +14,26 @@ public class Orchestrator implements AIAgent<List<String>> {
 
   public static final String SYSTEM_PROMPT =
       """
-                  Analyze given text and break it down into 3 distinct approaches.
-                  Return your response in this JSON format. Values of it is example.
-                  \\{
-                  "analysis": "Explain your understanding of the task and which variations would be valuable.
-                               Focus on how each approach serves different aspects of the task.",
-                  "tasks": [
-                      \\{
-                      "type": "...", //Type can be only 1 word
-                      "description": "..."
-                      \\}
-                  ]
-                  \\}
-                  """;
+      Analyze given text and break it down into 3 distinct approaches.
+      Return your response in this JSON format. Values of it is example.
+      \\{
+      "analysis": "Explain your understanding of the task and which variations would be valuable.
+                   Focus on how each approach serves different aspects of the task.",
+      "tasks": [
+          \\{
+          "type": "...", //Type can be only 1 word
+          "description": "..."
+          \\}
+      ]
+      \\}
+      """;
   public static final String WORKER_PROMPT =
       """
-                  Generate content based on:
-                  Task: {original_task}
-                  Style: {task_type}
-                  Guidelines: {task_description}
-                  """;
+      Generate content based on:
+      Task: {original_task}
+      Style: {task_type}
+      Guidelines: {task_description}
+      """;
   private final Logger logger = LoggerFactory.getLogger(Orchestrator.class);
   private final ChatClient chatClient;
 

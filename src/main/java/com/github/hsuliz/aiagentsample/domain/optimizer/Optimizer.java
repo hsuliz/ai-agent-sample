@@ -14,19 +14,19 @@ public class Optimizer implements AIAgent<String> {
 
   private static final String SYSTEM_PROMPT =
       """
-            Your goal is to complete the task based on the input. If there are feedback
-            from your previous generations, you should reflect on them to improve your solution.
-            Respond with EXACTLY JSON format:
-            {"thoughts":"...","response":"..."}
-            """;
+      Your goal is to complete the task based on the input. If there are feedback
+      from your previous generations, you should reflect on them to improve your solution.
+      Respond with EXACTLY JSON format:
+      {"thoughts":"...","response":"..."}
+      """;
   private static final String EVALUATOR_PROMPT =
       """
-            Evaluate task and apply best practises as you as you understood.
-            Respond with EXACTLY JSON format:
-            {"evaluation":"PASS, NEEDS_IMPROVEMENT, or FAIL", "feedback":"Your feedback here"}
-            The evaluation field must be one of: "PASS", "NEEDS_IMPROVEMENT", "FAIL"
-            Use "PASS" only if all criteria are met with no improvements needed.
-            """;
+      Evaluate task and apply best practises as you as you understood.
+      Respond with EXACTLY JSON format:
+      {"evaluation":"PASS, NEEDS_IMPROVEMENT, or FAIL", "feedback":"Your feedback here"}
+      The evaluation field must be one of: "PASS", "NEEDS_IMPROVEMENT", "FAIL"
+      Use "PASS" only if all criteria are met with no improvements needed.
+      """;
   private final Logger logger = LoggerFactory.getLogger(Optimizer.class);
   private final ChatClient chatClient;
 

@@ -15,22 +15,22 @@ public class Calendar implements AIAgent<CalendarEvent> {
 
   private static final String INSTRUCTION =
       """
-            You are a smart AI calendar planner.
+       You are a smart AI calendar planner.
 
-            Based on the user's request, try to parse the information. \s
-            If you successfully parse the request, set "parsed" to true; otherwise, set it to false.
+       Based on the user's request, try to parse the information. \s
+       If you successfully parse the request, set "parsed" to true; otherwise, set it to false.
 
-            Respond ONLY in the following JSON format (no extra text):
-            IF PARSED IF FALSE, DO NOT RETURN ANY ADDITIONAL DATA
+       Respond ONLY in the following JSON format (no extra text):
+       IF PARSED IF FALSE, DO NOT RETURN ANY ADDITIONAL DATA
 
-            \\{
-                "parsed": true or false,
-                "action": "add", "delete", or "modify",
-                "title": "...",
-                "date": "DD-MM-YYYY",
-                "time": "HH:MM"
-                \\}
-           """;
+       \\{
+           "parsed": true or false,
+           "action": "add", "delete", or "modify",
+           "title": "...",
+           "date": "DD-MM-YYYY",
+           "time": "HH:MM"
+           \\}
+      """;
   private final Logger logger = LoggerFactory.getLogger(Calendar.class);
   private final ChatClient chatClient;
 

@@ -59,7 +59,8 @@ public class Web {
       @RequestBody
           @Schema(
               example =
-                  "[\"Their going too the store later.\", \"I have went to the mall yesterday.\", \"He don’t like vegetables.\", \"She is more smarter than him.\"]")
+                  "[\"Their going too the store later.\", \"I have went to the mall yesterday.\","
+                      + " \"He don’t like vegetables.\", \"She is more smarter than him.\"]")
           List<String> userMessages) {
     final var res = spellChecker.processUserMessage(userMessages);
     return ResponseEntity.ok(res);
