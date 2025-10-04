@@ -27,6 +27,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Code format
         uses: axel-op/googlejavaformat-action@v4
         with:
