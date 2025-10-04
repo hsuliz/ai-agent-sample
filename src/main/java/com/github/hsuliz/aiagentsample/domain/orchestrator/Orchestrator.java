@@ -11,9 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class Orchestrator implements AIAgent<List<String>> {
 
+  private final Logger logger = LoggerFactory.getLogger(Orchestrator.class);
+
   public static final String SYSTEM_PROMPT =
       """
-                  Analyze given text and break it down into 1 distinct approaches.
+                  Analyze given text and break it down into 3 distinct approaches.
                   Return your response in this JSON format. Values of it is example.
                   \\{
                   "analysis": "Explain your understanding of the task and which variations would be valuable.
@@ -33,7 +35,7 @@ public class Orchestrator implements AIAgent<List<String>> {
                   Style: {task_type}
                   Guidelines: {task_description}
                   """;
-  private final Logger logger = LoggerFactory.getLogger(Orchestrator.class);
+
   private final ChatClient chatClient;
 
   public Orchestrator(ChatClient chatClient) {
@@ -52,7 +54,7 @@ public class Orchestrator implements AIAgent<List<String>> {
             .call()
             .entity(OrchestratorResponse.class);
 
-    System.out.println(orchestratorResponse);
+    logger.info("Orchestrator response: {}", orchestratorResponse);
 
     List<String> workerResponses =
         orchestratorResponse.tasks().stream()

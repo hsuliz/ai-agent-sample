@@ -50,7 +50,7 @@ public class Web {
     return ResponseEntity.ok(res);
   }
 
-  @GetMapping("/spellchecker")
+  @PostMapping("/spellchecker")
   public ResponseEntity<List<String>> spellchecker(@RequestBody List<String> userMessages) {
     final var res = spellChecker.processUserMessage(userMessages);
     return ResponseEntity.ok(res);
