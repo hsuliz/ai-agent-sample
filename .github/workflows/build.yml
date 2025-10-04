@@ -1,5 +1,6 @@
 name: build
-on: push
+on: workflow_dispatch
+
 
 jobs:
   build:
@@ -20,8 +21,33 @@ jobs:
       - name: Build
         run: ./gradlew build -x test
 
+  promote:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
       - name: Code format
         uses: axel-op/googlejavaformat-action@v4
         with:
           args: '--replace'
           commit-message: "chore: Java formatter"
+
+      - name: Version bump
+        shell: python
+        # I DONT CARE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        run: |
+          with open('build.gradle', 'r') as file:
+          data = file.readlines()
+
+          curr_version = data[7][11:-2].split('.')
+          curr_version[1] = str(int(curr_version[1]) + 1)
+          bump_version = 'version = \'' + '.'.join(curr_version) + '\'\n'
+          data[7] = bump_version
+          
+          with open('build.gradle', 'w') as file:
+            file.writelines(data)
+
+      - uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "chore: Version bump"
