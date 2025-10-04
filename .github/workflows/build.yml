@@ -21,20 +21,11 @@ jobs:
       - name: Build
         run: ./gradlew build -x test
 
-  promote:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Code format
         uses: axel-op/googlejavaformat-action@v4
         with:
           args: '--replace'
-          commit-message: "chore: Java formatter"
+          commit-message: "chore: format"
 
       - name: Version bump
         shell: python
@@ -53,4 +44,4 @@ jobs:
 
       - uses: stefanzweifel/git-auto-commit-action@v6
         with:
-          commit_message: "chore: Version bump"
+          commit_message: "chore: bump version"
