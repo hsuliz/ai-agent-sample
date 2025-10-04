@@ -5,7 +5,6 @@ import com.github.hsuliz.aiagentsample.domain.calendar.CalendarEvent;
 import com.github.hsuliz.aiagentsample.domain.optimizer.Optimizer;
 import com.github.hsuliz.aiagentsample.domain.orchestrator.Orchestrator;
 import com.github.hsuliz.aiagentsample.domain.spellchecker.SpellChecker;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -57,7 +56,11 @@ public class Web {
 
   @PostMapping("/spellchecker")
   public ResponseEntity<List<String>> spellchecker(
-      @RequestBody @Schema(example = "[\"Their going too the store later.\", \"I have went to the mall yesterday.\", \"He don’t like vegetables.\", \"She is more smarter than him.\"]") List<String> userMessages) {
+      @RequestBody
+          @Schema(
+              example =
+                  "[\"Their going too the store later.\", \"I have went to the mall yesterday.\", \"He don’t like vegetables.\", \"She is more smarter than him.\"]")
+          List<String> userMessages) {
     final var res = spellChecker.processUserMessage(userMessages);
     return ResponseEntity.ok(res);
   }

@@ -2,6 +2,7 @@ package com.github.hsuliz.aiagentsample.domain.orchestrator;
 
 import com.github.hsuliz.aiagentsample.domain.AIAgent;
 import java.util.List;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -10,8 +11,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Orchestrator implements AIAgent<List<String>> {
-
-  private final Logger logger = LoggerFactory.getLogger(Orchestrator.class);
 
   public static final String SYSTEM_PROMPT =
       """
@@ -35,7 +34,7 @@ public class Orchestrator implements AIAgent<List<String>> {
                   Style: {task_type}
                   Guidelines: {task_description}
                   """;
-
+  private final Logger logger = LoggerFactory.getLogger(Orchestrator.class);
   private final ChatClient chatClient;
 
   public Orchestrator(ChatClient chatClient) {
@@ -57,7 +56,7 @@ public class Orchestrator implements AIAgent<List<String>> {
     logger.info("Orchestrator response: {}", orchestratorResponse);
 
     List<String> workerResponses =
-        orchestratorResponse.tasks().stream()
+        Objects.requireNonNull(orchestratorResponse).tasks().stream()
             .map(
                 task ->
                     chatClient
@@ -71,7 +70,7 @@ public class Orchestrator implements AIAgent<List<String>> {
                         .call()
                         .content())
             .toList();
-
+    logger.info("Worker response: {}", workerResponses);
     return workerResponses;
   }
 }

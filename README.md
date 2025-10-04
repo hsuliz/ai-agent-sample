@@ -18,7 +18,7 @@ AI integration with Spring Boot with 4 patterns.
 1. In [application.properties](src/main/resources/application.properties) you should write pass values:
 
    |                                       |                        |
-                   |---------------------------------------|------------------------|
+                      |---------------------------------------|------------------------|
    | `spring.ai.openai.api-key`            | API key                |
    | `spring.ai.openai.chat.base-url`      | URL where model exists |
    | `spring.ai.openai.chat.options.model` | Model name             |
