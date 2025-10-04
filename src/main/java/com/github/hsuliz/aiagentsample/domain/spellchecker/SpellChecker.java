@@ -41,7 +41,9 @@ public class SpellChecker {
       // Wait for all tasks to complete
       CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
 
-      return futures.stream().map(CompletableFuture::join).toList();
+      final var result = futures.stream().map(CompletableFuture::join).toList();
+      logger.info("Result: {}", result);
+      return result;
     }
   }
 }
